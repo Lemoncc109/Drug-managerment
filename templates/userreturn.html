@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>账单信息管理</title>
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/admin/style.css}" media="all">
+    <script type="text/html" id="indexTpl">
+        {{d.LAY_TABLE_INDEX+1}}
+    </script>
+</head>
+<body class="layui-layout-body">
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">退货信息列表</div>
+                    <div class="layui-card-body">
+                        <table class="layui-hide" id="main-table" lay-filter="main-table"></table>
+                        <script type="text/html" id="toolbarDemo">
+                            <span class="layui-inline" style="width: 240px;">
+                                <input class="layui-input" name="param" id="param" placeholder="根据药品名称查询" autocomplete="off">
+                            </span>
+                            <span class="layui-btn layui-btn-sm layui-bg-red" id="s" lay-event="querySearch">
+                                <i class="layui-icon">&#xe615;</i>查询
+                            </span>
+
+                        </script>
+                         <script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">查看</a>
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/static/layui/layui.js}"></script>
+    <script>
+        layui.use(['table','form'],function () {
+            var $ = layui.$;
+            var table = layui.table;
+            var getdata = JSON.parse(sessionStorage.getItem("user"));
+            var username = getdata.field.username;
+            table.render({
+                elem: '#main-table',
+                height: 650,
+                url: '/returngoods/returngoodsQueryPage1?username='+username,
+                method: 'POST',
+                page: true,
+                id: 'table-load',
+                toolbar: '#toolbarDemo',
+                cols: [
+                    [
+                    {field:'id',title:'订单编号',algin:'center'},
+                    {field:'dname',title:'药品名称',algin:'center'},
+                    {field:'drugtype',title:'药品类别',algin:'center'},
+                    {field:'sname',title:'供应商',algin:'center'},
+                    {field:'price',title:'药品价格',algin:'center'},
+                    {field:'count',title:'退货数量',algin:'center'},
+                    {field:'total',title:'退货金额',algin:'center'},
+                    {field:'customer',title:'退货人姓名',algin:'center'},
+                    {field:'reason',title:'退货原因',algin:'center'},
+                    {field:'status',title:'审核状态',algin:'center',templet:Isstatus},
+                    {field:'buytime',title:'退货时间',algin:'center',
+                    templet:"<div>{{layui.util.toDateString(d.buytime,'yyyy-MM-dd')}}</div>"},
+                    {title:'操作',align:'center',toolbar:'#barDemo',fixed:'right' },
+                    ]
+                ]
+            });
+            
+            setTimeout(function() {
+                // IE
+                if(document.all) {
+                    document.getElementById("s").click();
+                }
+                // 其它浏览器
+                else {
+                    var e = document.createEvent("MouseEvents");
+                    e.initEvent("click", true, true);
+                    document.getElementById("s").dispatchEvent(e);
+                }
+            }, 100);
+            
+            
+            function Isstatus(d) {
+                debugger
+                var pstatus = d.status;
+              
+                if(pstatus=="待审核"){
+                    return "<span style='color:orange'>待审核</span>";
+                }else if(pstatus=="退货成功"){
+                    return "<span style='color:green'>退货成功</span>";
+                }else{
+                    return "<span style='color:red;'>退货拒绝</span>";
+                }
+            }
+
+            //监听头工具栏事件
+            table.on('toolbar(main-table)',function (obj) {
+                switch (obj.event) {
+                    case 'querySearch':
+                        var param = $('#param').val();
+                        table.reload('table-load',{
+                            where: {
+                                param: param
+                            }
+                        });
+                        $('#param').val(param);
+                        break;
+                    case 'bigdel':
+                    	  var checkStatus = table.checkStatus('table-load'),
+                          data = checkStatus.data,
+                          ids = "";
+                      if (data.length > 0) {
+                          for (var i in data) {
+                          	ids += data[i].id + ",";
+                          }
+                          console.log(ids);
+                          layer.confirm('确定删除选中的账单？', {icon: 3, title: '提示信息'}, function (index) {
+                              $.post('/billinfo/batchDeletebillinfo', {ids: ids}, function (data) {
+                                  layer.msg(data.msg);
+                                  setTimeout(function() {
+                                      // IE
+                                      if(document.all) {
+                                          document.getElementById("s").click();
+                                      }
+                                      // 其它浏览器
+                                      else {
+                                          var e = document.createEvent("MouseEvents");
+                                          e.initEvent("click", true, true);
+                                          document.getElementById("s").dispatchEvent(e);
+                                      }
+                                  }, 100);
+                                  layer.close(index);
+                              });
+                          })
+                      } else {
+                          layer.msg("请选择需要删除的账单信息");
+                      }
+                    	break;
+                }
+            });
+
+            //监听退货
+            table.on('tool(main-table)',function (obj) {
+                var data = obj.data;
+                switch (obj.event) {
+                case 'edit':
+                    layer.open({
+                        type: 2,
+                        title: '编辑退货信息',
+                        content: '/returngoods/returngoodsQueryById2?id=' +data.id,
+                        shade:[0.8,'#393d49'],
+                        area:['600px','500px'],
+                        btn:['确定','取消'],
+                        yes:function (index,layero) {
+                            var iframeWindow = window['layui-layer-iframe'+index];
+                            var submit = layero.find('iframe').contents().find("#LAY-front-submit");
+                            //监听提交
+                            iframeWindow.layui.form.on('submit(LAY-front-submit)',function (data) {
+                                var field = data.field;
+                                $.ajax({
+                                    url: '/returngoods/returngoodsEdit',
+                                    data: field,
+                                    async: false,
+                                    cache: false,
+                                    success: function (str) {
+                                        if(str.code === 0){
+                                            table.reload('table-load');
+                                        }
+                                        layer.msg(str.msg,{icon:str.icon,anim:str.anim});
+                                    }
+                                });
+                                layer.close(index);     //关闭弹层
+                            });
+                            submit.trigger('click');
+                        },
+                        success:function (layero,index) {
+
+                        }
+                    });
+                    break;
+                        
+                  	
+                    case 'del':
+                        layer.confirm('确认要删除吗？',function (index) {
+                            $.ajax({
+                                url: '/billinfo/billinfoDelById?id=' +data.id,
+                                data: null,
+                                async: false,
+                                cache: false,
+                                success: function (str) {
+                                    table.reload('table-load');
+                                    layer.msg(str.msg,{icon:str.icon,anim:str.anim});
+                                }
+                            });
+                        })
+                        break;
+                }
+            });
+        });
+        
+    </script>
+</body>
+</html>
+

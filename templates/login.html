@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link type="text/css" rel="stylesheet" href="./static/layui/css/layui.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet"
+	href="http://at.alicdn.com/t/font_1786038_m62pqneyrzf.css">
+<title>欢迎登录</title>
+<style>
+* {
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	height: 100%;
+}
+
+body {
+	height: 100%;
+	font-family: JetBrains Mono Medium;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	/* background-color: #0e92b3; */
+	background:
+		url('https://bpic.588ku.com/back_origin_min_pic/20/10/14/62a5a21de72d5b09be3db5fe418ede19.jpg!/fw/750/quality/99/unsharp/true/compress/true')
+		no-repeat;
+	background-size: 100% 100%;
+}
+
+.form-wrapper {
+	width: 300px;
+	background-color: rgba(41, 45, 62, .8);
+	color: #fff;
+	border-radius: 2px;
+	padding: 50px;
+}
+
+.form-wrapper .header {
+	text-align: center;
+	font-size: 35px;
+	text-transform: uppercase;
+	line-height: 100px;
+}
+
+.form-wrapper .input-wrapper input {
+	background-color: rgb(41, 45, 62);
+	border: 0;
+	width: 100%;
+	text-align: center;
+	font-size: 15px;
+	color: #fff;
+	outline: none;
+}
+
+.form-wrapper .input-wrapper input::placeholder {
+	text-transform: uppercase;
+}
+
+.form-wrapper .input-wrapper .border-wrapper {
+	background-image: linear-gradient(to right, #e8198b, #0eb4dd);
+	width: 100%;
+	height: 50px;
+	margin-bottom: 20px;
+	border-radius: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.form-wrapper .input-wrapper .border-wrapper .border-item {
+	height: calc(100% - 4px);
+	width: calc(100% - 4px);
+	border-radius: 30px;
+}
+
+.form-wrapper .action {
+	display: flex;
+	justify-content: center;
+}
+
+.form-wrapper .action .btn {
+	width: 60%;
+	text-transform: uppercase;
+	border: 2px solid #0e92b3;
+	text-align: center;
+	line-height: 50px;
+	border-radius: 30px;
+	cursor: pointer;
+}
+
+.form-wrapper .action .btn:hover {
+	background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+}
+
+.form-wrapper .icon-wrapper {
+	text-align: center;
+	width: 60%;
+	margin: 0 auto;
+	margin-top: 20px;
+	border-top: 1px dashed rgb(146, 146, 146);
+	padding: 20px;
+}
+
+.form-wrapper .icon-wrapper i {
+	font-size: 20px;
+	color: rgb(187, 187, 187);
+	cursor: pointer;
+	border: 1px solid #fff;
+	padding: 5px;
+	border-radius: 20px;
+}
+
+.form-wrapper .icon-wrapper i:hover {
+	background-color: #0e92b3;
+}
+.layui-form-select dl  { color: black; }
+</style>
+</head>
+
+<body>
+
+	<div class="form-wrapper">
+		<div class="header">login</div>
+		 <form class="layui-form">
+		<div class="input-wrapper">
+			<div class="border-wrapper">
+  <input class="border-item" type="text" name="username" id="username" required lay-verify="required" placeholder="请输入用户名"  autocomplete="off">
+
+			</div>
+			<div class="border-wrapper">
+ <input class="border-item" type="password" name="password" required lay-verify="required" placeholder="请输入密码用户名"  autocomplete="off">
+
+			</div>
+		</div>
+
+	<select name="identity">
+ <option value="普通用户">普通用户</option>
+  <option value="药剂师">药剂师</option>
+  <option value="库存管理员">库存管理员</option>
+  <option value="管理员" >管理员</option>
+    <option value="医生"  >医生</option>
+</select>  
+<!-- <div class="border-wrapper" style="margin-left: 50px;" > -->
+<!-- <input type="radio" name="identity" value="管理员"   title="管理员" checked> -->
+<!-- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -->
+<!-- <input type="radio" name="identity" value="普通用户" title="用户" > -->
+<!-- </div> -->
+<br>
+
+		<div class="action">
+			<button lay-submit lay-filter="login" class="btn">登录</button>
+		</div>
+		</form>
+		<br>
+		<form action="/toregister">
+			<div class="action">
+				<button lay-submit class="btn">注册</button>
+
+			</div>
+		</form>
+		<div class="icon-wrapper">
+			<i class="iconfont icon-weixin"></i> <i class="iconfont icon-qq"></i>
+			<i class="iconfont icon-git"></i>
+		</div>
+	
+	</div>
+	
+	<script src="./static/layui/layui.js"></script>
+    <script>
+        layui.use("form",function () {
+              var form = layui.form;
+              var $ = layui.$;
+              //监听提交
+              form.on("submit(login)",function (data) {
+               $.ajax({
+                     url:"/toLogin",
+                     type:"POST",
+                     data:data.field,
+                     dataType:"json",
+                     success: function (result) {
+                         if(result.code == "1"){
+                            layer.msg(result.msg,{icon:result.icon,anim:result.anim},function () {
+                            	sessionStorage.setItem("user", JSON.stringify(data));
+                                 location.href = "/index";     //登录成功，转向管理员主页
+                             });
+                         }else if(result.code == "2"){
+                            layer.msg(result.msg,{icon:result.icon,anim:result.anim},function () {
+                            	sessionStorage.setItem("user", JSON.stringify(data));
+                                 location.href = "/userindex";     //登录成功，转向用户主页
+                             });
+                         }
+                         else if(result.code == "3"){
+                             layer.msg(result.msg,{icon:result.icon,anim:result.anim},function () {
+                             	sessionStorage.setItem("user", JSON.stringify(data));
+                                  location.href = "/doctorUserindex";     //登录成功，转向用户主页
+                              });
+                          }
+                         else if(result.code == "4"){
+                             layer.msg(result.msg,{icon:result.icon,anim:result.anim},function () {
+                             	sessionStorage.setItem("user", JSON.stringify(data));
+                                  location.href = "/drugUserindex";     //登录成功，转向用户主页
+                              });
+                          }
+                         else if(result.code == "5"){
+                             layer.msg(result.msg,{icon:result.icon,anim:result.anim},function () {
+                             	sessionStorage.setItem("user", JSON.stringify(data));
+                                  location.href = "/stockUserindex";     //登录成功，转向用户主页
+                              });
+                          }
+                         else{
+                             layer.msg(result.msg,{icon:result.icon,anim:result.anim});
+                         }
+                     }
+                 });
+                 return false;
+              });
+          });
+     </script> 
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

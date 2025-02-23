@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>账单信息</title>
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/admin/style.css}" media="all">
+</head>
+<body onload="total()">
+    <div class="layui-fluid">
+        <div class="layui-card">
+            <div class="layui-card-body" style="padding: 15px;">
+                <form class="layui-form layui-form-pane" action="">
+                    <input name="id" th:value="${obj?.id}" class="layui-input layui-hide" />
+                    
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">药品名称</label>
+                        <div class="layui-input-block">
+                          <input type="text" name="dname"  readonly="readonly" th:value="${obj?.dname}" lay-verify="required" placeholder="请输入药品类别" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">药品类别</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="drugtype" readonly="readonly" id="drugtype" th:value="${obj?.drugtype}" lay-verify="required" placeholder="请输入药品类别" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">供应商</label>
+                        <div class="layui-input-block">
+             <input type="text" name="sname"   readonly="readonly" th:value="${obj?.sname}" lay-verify="required" placeholder="请输入药品类别" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                     <div class="layui-form-item">
+                        <label class="layui-form-label">药品价格</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="price" readonly="readonly" id="price" th:value="${obj?.price}" lay-verify="required" placeholder="请输入药品价格" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">购买数量</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="count" readonly="readonly" id="count" th:value="${obj?.count}" lay-verify="required" placeholder="请输入数量" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">总金额</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="total" readonly="readonly"  th:value="${obj?.total}" lay-verify="required" placeholder="请输入总金额" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                     <div class="layui-form-item">
+                        <label class="layui-form-label">购买用户</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="customer" readonly="readonly" id="customer" th:value="${obj?.customer}" lay-verify="required" placeholder="请输入购买用户" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                     <div class="layui-form-item">
+                        <label class="layui-form-label">开药原因</label>
+                            <div class="layui-input-block">
+                            <textarea name="reason" th:text="${obj?.reason}" readonly="readonly" lay-verify="required"  autocomplete="off" class="layui-textarea"></textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">开方医生</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="doctor" readonly="readonly" id="doctor" th:value="${obj?.doctor}" lay-verify="required" placeholder="请输入医生姓名" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    
+                      <div class="layui-form-item">
+                        <label class="layui-form-label">审核状态</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="status" readonly="readonly" id="status" th:value="${obj?.status}" lay-verify="required" placeholder="请输入审核状态" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-hide">
+                        <input type="button" lay-submit lay-filter="LAY-front-submit" id="LAY-front-submit" value="确认">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/static/layui/layui.js}"></script>
+    <script>
+        layui.use(['form','laydate'],function () {
+            var $ = layui.$;
+            var laydate = layui.laydate;
+            var form = layui.form;
+//             var total = parentEle.querySelector(".total");
+//     total.innerText =$('#count').val()*$('#price').val();
+//             $('#total').val() = $('#count').val()*$('#price').val();
+            //支持日期控件
+            laydate.render({
+                elem: '#buytime',
+                trigger: 'click'
+            });
+            
+          
+            document.getElementById("total").onclick = function(){
+              	 var count = document.getElementById("count").value;
+                   var price = document.getElementById("price").value;
+                document.getElementById("total").value=count*price;
+              }
+
+           
+            
+            //当前供应商的值
+            var currentSname = '[[${obj?.sname}]]';
+            //获取供应商列表
+            $.ajax({
+                url: '/supplier/supplierList',
+                dataType:'json',
+                type:'post',
+                cache:false,
+                success:function (data) {
+                    $('#sname').prepend("<option value=''>请选择</option>");
+                    for(var i=0;i<data.data.length;i++){
+                        if(data.data[i].name==currentSname){
+                            $('#sname').append("<option selected value='"+data.data[i].name+"'>"+data.data[i].name+"</option>");
+                        }else{
+                            $('#sname').append("<option value='"+data.data[i].name+"'>"+data.data[i].name+"</option>");
+                        }
+                    }
+                    form.render();          //下拉列表渲染，把内容加载进去
+                }
+            });
+           
+            //当前药品的值
+            var currentDname = '[[${obj?.dname}]]';
+            //获取药品列表
+            $.ajax({
+                url: '/druginfo/druginfoList',
+                dataType:'json',
+                type:'post',
+                cache:false,
+                success:function (data) {
+                    $('#dname').prepend("<option value=''>请选择</option>");
+                    for(var i=0;i<data.data.length;i++){
+                        if(data.data[i].name==currentDname){
+                            $('#dname').append("<option selected value='"+data.data[i].name+"'>"+data.data[i].name+"</option>");
+                        }else{
+                            $('#dname').append("<option value='"+data.data[i].name+"'>"+data.data[i].name+"</option>");
+                        }
+                    }
+                    form.render();          //下拉列表渲染，把内容加载进去
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

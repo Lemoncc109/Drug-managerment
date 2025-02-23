@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>药品库存检查</title>
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/admin/style.css}" media="all">
+    <script type="text/html" id="indexTpl">
+        {{d.LAY_TABLE_INDEX+1}}
+    </script>
+</head>
+<body class="layui-layout-body">
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">药品库存检查</div>
+                    <div class="layui-card-body">
+                        <table class="layui-hide" id="main-table" lay-filter="main-table"></table>
+                        <script type="text/html" id="toolbarDemo">
+                            <span class="layui-inline" style="width: 240px;">
+                                <input class="layui-input" name="param" id="param" placeholder="根据药品名称查询" autocomplete="off">
+                            </span>
+                            <span class="layui-btn layui-btn-sm layui-bg-red" id="s" lay-event="querySearch">
+                                <i class="layui-icon">&#xe615;</i>查询
+                            </span>
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/static/layui/layui.js}"></script>
+    <script>
+        layui.use(['table','form'],function () {
+            var $ = layui.$;
+            var table = layui.table;
+            table.render({
+                elem: '#main-table',
+                height: 650,
+                url: '/druginfo/druginfoQueryPage3',
+                method: 'POST',
+                page: true,
+                id: 'table-load',
+                toolbar: '#toolbarDemo',
+                cols: [
+                    [
+                     {field:'id',title:'药品ID',algin:'center'},
+                    {field:'name',title:'药品名称',algin:'center'},
+                    {field:'drugtype',title:'药品类别',algin:'center'},
+                    {field:'supplier',title:'供应商',algin:'center'},
+                    {field:'stock',title:'药品库存',algin:'center',  },
+                    {title:'库存状况',align:'center',templet: isStock}
+                    ]
+                ]
+            });
+
+            setTimeout(function() {
+                // IE
+                if(document.all) {
+                    document.getElementById("s").click();
+                }
+                // 其它浏览器
+                else {
+                    var e = document.createEvent("MouseEvents");
+                    e.initEvent("click", true, true);
+                    document.getElementById("s").dispatchEvent(e);
+                }
+            }, 100);
+            
+            //监听头工具栏事件
+            table.on('toolbar(main-table)',function (obj) {
+                switch (obj.event) {
+                    case 'querySearch':
+                        var param = $('#param').val();
+                        table.reload('table-load',{
+                            where: {
+                                param: param
+                            }
+                        });
+                        $('#param').val(param);
+                        break;
+                }
+            });
+
+            //计算药品库存
+            function isStock(d) {
+                //生产日期
+                debugger
+                var pstock = d.stock;
+                //获取库存
+                if(pstock<=30){
+                    return "<span style='color:red'>库存告罄,急需补货</span>";
+                }else if(pstock<=60){
+                    return "<span style='color:blue'>库存不足,及时补货</span>";
+                }else{
+                    return "<span style='color:green;'>库存正常</span>";
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

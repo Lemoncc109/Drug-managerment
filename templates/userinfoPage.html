@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户信息</title>
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/admin/style.css}" media="all">
+</head>
+<body>
+    <div class="layui-fluid">
+        <div class="layui-card">
+            <div class="layui-card-body" style="padding: 15px;">
+                <form class="layui-form layui-form-pane" action="">
+                <div class="layui-form-item">
+                        <label class="layui-form-label"> 用户ID</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="id" th:value="${obj?.id}" lay-verify="required"  autocomplete="off" class="layui-input" disabled="disabled">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"> 用户账号</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="username" th:value="${obj?.username}" lay-verify="required"  autocomplete="off" class="layui-input" disabled="disabled">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">用户密码</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="password" th:value="${obj?.password}" readonly="readonly" lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                     <div class="layui-form-item">
+                        <label class="layui-form-label">用户姓名</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="pname" th:value="${obj?.pname}" readonly="readonly" lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">用户身份</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="identity" th:value="${obj?.identity}" readonly="readonly" lay-verify="required" placeholder="请输入身份" autocomplete="off" class="layui-input">
+                                               
+                        </div>
+                    </div>
+                     <div class="layui-form-item">
+                        <label class="layui-form-label">赋予身份</label>
+                        <div class="layui-input-block">
+                         <select name="identity"> 
+						<option value="普通用户">请选择（默认: 普通用户）</option>
+						<option value="普通用户">普通用户</option>
+						<option value="药剂师">药剂师</option>
+						<option value="库存管理员">库存管理员</option>
+                        </select>
+                        </div>
+                        </div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">用户状态</label>
+						<div class="layui-input-block">
+						<select name="status"> 
+						<option value="允许">请选择（默认: 允许）</option>
+						<option value="允许">允许</option>
+						<option value="禁止">禁止</option>
+						</select>
+<!-- 	        <input type="text" name="status" th:value="${obj?.status}" lay-verify="required" placeholder="请输入用户状态" autocomplete="off" class="layui-input" disabled="disabled"> -->
+						</div>
+                    </div>
+                    
+                    <div class="layui-form-item layui-hide">
+                        <input type="button" lay-submit lay-filter="LAY-front-submit" id="LAY-front-submit" value="确认">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/static/layui/layui.js}"></script>
+    <script>
+        layui.use(['form'],function () {
+            var $ = layui.$;
+            var form = layui.form;
+ 
+            //当前用户的值
+            var currentDname = '[[${obj?.username}]]';
+            //获取用户列表
+            $.ajax({
+                url: '/userinfoList',
+                dataType:'json',
+                type:'post',
+                cache:false,
+                success:function (data) {
+                    $('#status').prepend("<option value=''>请选择</option>");
+                    for(var i=0;i<data.data.length;i++){
+                        if(data.data[i].username==currentDname){
+                            $('#status').append("<option selected value='"+data.data[i].status+"'>"+data.data[i].status+"</option>");
+                        }else{
+                            $('#status').append("<option value='"+data.data[i].status+"'>"+data.data[i].status+"</option>");
+                        }
+                    }
+                    form.render();          //下拉列表渲染，把内容加载进去
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

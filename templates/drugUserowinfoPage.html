@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>出入库申请信息</title>
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/admin/style.css}" media="all">
+</head>
+<body onload="total()">
+    <div class="layui-fluid">
+        <div class="layui-card">
+            <div class="layui-card-body" style="padding: 15px;">
+                <form class="layui-form layui-form-pane" action="">
+                 <input name="id" th:value="${obj?.id}" class="layui-input layui-hide" />
+                      <div class="layui-form-item">
+                        <label class="layui-form-label">药品名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="dname" id="dname" readonly="readonly" th:value="${obj?.dname}" lay-verify="required" placeholder="请输入药品类别" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                     <div class="layui-form-item">
+                        <label class="layui-form-label">供应商</label>
+                        <div class="layui-input-block">
+                  <input type="text" name="supplier" id="supplier" readonly="readonly" th:value="${obj?.supplier}" lay-verify="required" placeholder="请输入药品类别" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">出入库类型</label>
+                       <div class="layui-input-block">
+                  <input type="text" name="type"  readonly="readonly" th:value="${obj?.type}" lay-verify="required" placeholder="请输入药品类别" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">数量</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="count" th:value="${obj?.count}" readonly="readonly" lay-verify="required" placeholder="请输入数量" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                     <div class="layui-form-item">
+                        <label class="layui-form-label">申请人</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="applier" th:value="${obj?.applier}" readonly="readonly" lay-verify="required" placeholder="请输入操作人" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                   
+                      <div class="layui-form-item">
+                        <label class="layui-form-label">审核状态</label>
+                        <div class="layui-input-block">
+                     <input type="text" name="status" th:value="${obj?.status}" readonly="readonly" lay-verify="required" placeholder="请输入操作人" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                     <div class="layui-form-item">
+                        <label class="layui-form-label">操作人</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="operator" th:value="${obj?.operator}" readonly="readonly" lay-verify="required" placeholder="请输入操作人" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+<!--                     <div class="layui-form-item"> -->
+<!--                         <label class="layui-form-label">操作时间</label> -->
+<!--                         <div class="layui-input-block"> -->
+<!--                             <input type="tel" name="createtime" th:value="${obj?.createtime}" readonly="readonly" lay-verify="required" placeholder="请输入操作人" autocomplete="off" class="layui-input"> -->
+<!--                         </div> -->
+<!--                     </div> -->
+<!--                     <div class="layui-form-item layui-hide"> -->
+<!--                         <input type="button" lay-submit lay-filter="LAY-front-submit" id="LAY-front-submit" value="确认"> -->
+<!--                     </div> -->
+                </form>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/static/layui/layui.js}"></script>
+    <script>
+        layui.use(['form','laydate'],function () {
+            var $ = layui.$;
+            var laydate = layui.laydate;
+            var form = layui.form;
+//             var total = parentEle.querySelector(".total");
+//     total.innerText =$('#count').val()*$('#price').val();
+//             $('#total').val() = $('#count').val()*$('#price').val();
+            //支持日期控件
+            laydate.render({
+                elem: '#buytime',
+                trigger: 'click'
+            });
+            
+          
+            document.getElementById("total").onclick = function(){
+              	 var count = document.getElementById("count").value;
+                   var price = document.getElementById("price").value;
+                document.getElementById("total").value=count*price;
+              }
+
+           
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>药品信息管理</title>
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/admin/style.css}" media="all">
+    <script type="text/html" id="indexTpl">
+        {{d.LAY_TABLE_INDEX+1}}
+    </script>
+      <style>
+    .layui-table-cell{
+        height:auto;
+        line-height: 30px;
+    }
+     	  .imgPreview {
+            display: none;
+            top: 0;
+            left: 0;
+            width: 100%; /*容器占满整个屏幕*/
+            height: 100%;
+            position: fixed;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .imgPreview img {
+            z-index: 100;
+            width: 60%;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+        }
+        /*添加鼠标移入图片效果*/
+        .img {
+            cursor: url("ico/放大镜.png"), auto;
+        }
+</style>
+</head>
+<body class="layui-layout-body">
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">药品信息列表</div>
+                    <div class="layui-card-body">
+                        <table class="layui-hide" id="main-table" lay-filter="main-table"></table>
+                        <script type="text/html" id="toolbarDemo">
+                            <span class="layui-inline" style="width: 240px;">
+                                <input class="layui-input" name="param" id="param" placeholder="根据药品名称查询" autocomplete="off">
+                            </span>
+                            <span class="layui-inline" style="width: 240px;">
+                                <input class="layui-input" name="drugtype" id="drugtype" placeholder="根据药品类别查询" autocomplete="off">
+                            </span>
+                            <span class="layui-btn layui-btn-sm layui-bg-orange" id="s" lay-event="querySearch">
+                                <i class="layui-icon">&#xe615;</i>查询
+                           </span>
+                        </script>
+                         <script type="text/html" id="barDemo">
+                            <a class="layui-btn layui-btn-danger layui-btn-xs" style="width:100px;height:30px" lay-event="add">查看</a>
+                        </script>
+               </div> 
+                    
+               </div>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/static/layui/layui.js}"></script>
+    <script>
+        layui.use(['table','form'],function () {
+            var $ = layui.$;
+            var table = layui.table;
+            table.render({
+            	
+                elem: '#main-table',
+                height: 650,
+                url: '/druginfo/druginfoQueryPage',
+                method: 'POST',
+                page: true,
+                id: 'table-load',
+                toolbar: '#toolbarDemo',
+                cols: [
+                    [
+                    {field:'id',title:'ID',align:'center'},
+                    {field:'name',title:'药品名称',align:'center'},
+                    {field:'img',title:'药品图片',align:'center',width:150,
+                    templet: function(d) 
+                    { return '<div ><img  src="'+d.img+'" ' + 'alt="" width="100px" height="100px" "></div>'; }},
+                    {field:'drugtype',title:'药品类别',align:'center'},
+                    {field:'detailinfo',title:'药品详情',align:'center',width:200},
+                    {field:'supplier',title:'供应商',align:'center'},
+                    {field:'price',title:'药品价格',align:'center'},
+                    {field:'warrenty',title:'保质期（月）',align:'center'},
+                    {field:'producttime',title:'生产时间',algin:'center',
+                    templet:"<div>{{layui.util.toDateString(d.producttime,'yyyy-MM-dd')}}</div>"},
+                    {title:'操作',align:'center',toolbar:'#barDemo',fixed:'right' ,width:110}
+                    ]
+                ]
+            });
+      
+            setTimeout(function() {
+                // IE
+                if(document.all) {
+                    document.getElementById("s").click();
+                }
+                // 其它浏览器
+                else {
+                    var e = document.createEvent("MouseEvents");
+                    e.initEvent("click", true, true);
+                    document.getElementById("s").dispatchEvent(e);
+                }
+            }, 100);
+            
+//             function show_img(){
+//             	 var src = $(this).attr('src');
+//                  $('.imgPreview img').attr('src', src);
+//                  $('.imgPreview').show();
+//             }
+                   
+            //监听头工具栏事件
+            table.on('toolbar(main-table)',function (obj) {
+                switch (obj.event) {
+                    case 'querySearch':
+                        var param = $('#param').val();
+                        var drugtype = $('#drugtype').val();
+                        table.reload('table-load',{
+                            where: {
+                                param: param,
+                                drugtype:drugtype
+                            }
+                        });
+                        $('#param').val(param);
+                        $('#drugtype').val(drugtype);
+                        break;
+                }
+            });
+
+            //监听编辑、删除
+            table.on('tool(main-table)',function (obj) {
+                var data = obj.data;
+                switch (obj.event) {
+                case 'add':
+                    layer.open({
+                        type: 2,
+                        title: '药品详情',
+                        content: '/billinfo/userbillinfoQueryById?id='+data.id,
+                        shade:[0.8,'#393d49'],
+                        area:['600px','500px'],
+                        yes:function (index,layero) {
+                            var iframeWindow = window['layui-layer-iframe'+index];
+                            var submit = layero.find('iframe').contents().find("#LAY-front-submit");
+                            //监听提交
+                            iframeWindow.layui.form.on('submit(LAY-front-submit)',function (data) {
+                                var field = data.field;
+                                $.ajax({
+                                    url: '/billinfo/userbillinfoAdd',
+                                    data: field,
+                                    async: false,
+                                    cache: false,
+                                    success: function (str) {
+                                        if(str.code === 0){
+                                            table.reload('table-load');
+                                        }
+                                        layer.msg(str.msg,{icon:str.icon,anim:str.anim});
+                                    }
+                                });
+                                layer.close(index);     //关闭弹层
+                            });
+                            submit.trigger('click');
+                        },
+                        success:function (layero,index) {
+
+                        }
+                    });
+                    break;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

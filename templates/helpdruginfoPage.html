@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>急救药品信息</title>
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/admin/style.css}" media="all">
+</head>
+<body>
+    <div class="layui-fluid">
+        <div class="layui-card">
+            <div class="layui-card-body" style="padding: 15px;">
+                <form class="layui-form layui-form-pane" action="">
+                   <input name="id" th:value="${obj?.id}" class="layui-input layui-hide"/>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">药品名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="name" th:value="${obj?.name}" lay-verify="required" placeholder="请输入药品名称" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">药品类别</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="drugtype" value="急救药" readonly="readonly" lay-verify="required" placeholder="请输入药品类别" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                     <div class="layui-form-item">
+                        <label class="layui-form-label">药品图片</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="img" th:value="${obj?.img}" lay-verify="required" placeholder="请输入药品图片地址" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+<!--                     <div class="layui-form-item"> -->
+<!--                         <label class="layui-form-label">药品编码</label> -->
+<!--                         <div class="layui-input-block"> -->
+<!--                             <input type="text" name="number" th:value="${obj?.number}" lay-verify="required" placeholder="请输入药品编码" autocomplete="off" class="layui-input"> -->
+<!--                         </div> -->
+<!--                     </div> -->
+                      <div class="layui-form-item">
+                        <label class="layui-form-label">药品详情</label>
+                        <div class="layui-input-block">
+                            <textarea name="detailinfo" th:text="${obj?.detailinfo}" lay-verify="required" placeholder="请输入药品详情" autocomplete="off" class="layui-textarea"></textarea>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">供应商</label>
+                        <div class="layui-input-block">
+                <input type="text" name="supplier" value="华盛制药公司" readonly="readonly" lay-verify="required"  autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                  <div class="layui-form-item">
+                        <label class="layui-form-label">生产时间</label>
+                        <div class="layui-input-block">
+                            <input type="text" readonly name="producttime" id="producttime" th:value="${obj?.producttimeStr}" lay-verify="required" placeholder="请输入生产时间" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">保质期</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="warrenty" th:value="${obj?.warrenty}" lay-verify="required" placeholder="请输入保质期（月）" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">价格</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="price" th:value="${obj?.price}" lay-verify="required" placeholder="请输入价格" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">库存</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="stock" th:value="${obj?.stock}" lay-verify="required" placeholder="请输入库存" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                       <div class="layui-form-item">
+                        <label class="layui-form-label">销售额</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="salenum" value="0"  lay-verify="required" placeholder="请输入销售额" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item layui-hide">
+                        <input type="button" lay-submit lay-filter="LAY-front-submit" id="LAY-front-submit" value="确认">
+                    </div>
+                    
+<!--                     <div class="layui-upload"> -->
+<!--   <button type="button" class="layui-btn" id="test1">上传图片</button> -->
+<!--   <div class="layui-upload-list"> -->
+<!--     <img class="layui-upload-img" width="200px" height="200px" id="demo1"> -->
+<!--     <p id="demoText"></p> -->
+<!--   </div> -->
+<!--    <input type="hidden" id="img" name="img"th:value="${obj?.img}"/> -->
+<!--   <div style="width: 200px;"> -->
+<!--     <div class="layui-progress layui-progress-big" lay-showpercent="yes" lay-filter="demo"> -->
+<!--       <div class="layui-progress-bar" lay-percent=""></div> -->
+<!--     </div> -->
+<!--   </div> -->
+<!-- </div>    -->
+                </form>
+            </div>
+        </div>
+    </div>
+  
+    <script th:src="@{/static/layui/layui.js}"></script>
+    <script>
+        layui.use(['form','upload', 'element','laydate'],function () {
+        	 var $ = layui.jquery
+        	  ,upload = layui.upload
+        	  ,element = layui.element
+        	  ,layer = layui.layer;
+            var laydate = layui.laydate;
+            var form = layui.form;
+
+            //支持日期控件
+            laydate.render({
+                elem: '#producttime',
+                trigger: 'click'
+            });
+            
+            //常规使用 - 普通图片上传
+            var uploadInst = upload.render({
+              elem: '#test1'
+              ,url: '/druginfo/upload' //此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+              ,exts: 'jpg|png|jpeg|gif'
+              ,before: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                  $('#demo1').attr('src', result); //图片链接（base64）
+                });
+                element.progress('demo', '0%'); //进度条复位
+                layer.msg('上传中', {icon: 16, time: 0});
+              }
+              ,done: function(res){
+                //如果上传失败
+                if(res.code > 0){
+                  return layer.msg('上传失败');
+                }
+                //上传成功的一些操作
+                //……
+                $('#demoText').html(''); //置空上传失败的状态
+              }
+              ,error: function(){
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function(){
+                  uploadInst.upload();
+                });
+              }
+              //进度条
+              ,progress: function(n, elem, e){
+                element.progress('demo', n + '%'); //可配合 layui 进度条元素使用
+                if(n == 100){
+                  layer.msg('上传完毕', {icon: 1});
+                }
+              }
+            });
+            
+            //当前供应商的值
+            var currentSupplier = '[[${obj?.supplier}]]';
+            //获取供应商列表
+            $.ajax({
+                url: '/supplier/supplierList',
+                dataType:'json',
+                type:'post',
+                cache:false,
+                success:function (data) {
+                    $('#supplier').prepend("<option value=''>请选择</option>");
+                    for(var i=0;i<data.data.length;i++){
+                        if(data.data[i].name==currentSupplier){
+                            $('#supplier').append("<option selected value='"+data.data[i].name+"'>"+data.data[i].name+"</option>");
+                        }else{
+                            $('#supplier').append("<option value='"+data.data[i].name+"'>"+data.data[i].name+"</option>");
+                        }
+                    }
+                    form.render();          //下拉列表渲染，把内容加载进去
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>药方信息</title>
+<link rel="stylesheet" th:href="@{/static/layui/css/layui.css}"
+	media="all">
+<link rel="stylesheet" th:href="@{/static/admin/style.css}" media="all">
+</head>
+<body>
+	<div class="layui-fluid">
+		<div class="layui-card">
+			<div class="layui-card-body" style="padding: 15px;">
+				<form class="layui-form layui-form-pane" action="">
+					<div class="layui-form-item">
+						<label class="layui-form-label">患者账号</label>
+						<div class="layui-input-block">
+							<input type="text" name="username" id="username"
+								lay-verify="required" placeholder="请输入用户账号" autocomplete="off"
+								class="layui-input">
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">患者姓名</label>
+						<div class="layui-input-block">
+							<input type="text" name="customer" id="customer"
+								th:value="${obj?.customer}" lay-verify="required"
+								placeholder="请输入患者用户" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<div class="layui-inline">
+							<label class="layui-form-label">药品名称</label>
+							<div class="layui-input-inline">
+								<select name="dname" id="dname" lay-filter="onClickSelected"></select>
+							</div>
+						</div>
+						<div class="layui-inline">
+							<label class="layui-form-label">药品类别</label>
+							<div class="layui-input-inline">
+								<select name="drugtype" id="drugtype">
+									<option value="">请选择</option>
+									<option value="内服药">内服药</option>
+									<option value="急救药">急救药</option>
+									<option value="外用药">外用药</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="layui-inline">
+							<label class="layui-form-label">供应商</label>
+							<div class="layui-input-inline">
+								<select name="sname" id="sname"></select>
+							</div>
+						</div>
+						<div class="layui-inline">
+							<label class="layui-form-label">药品价格</label>
+							<div class="layui-input-inline">
+								<input type="text" name="price" id="price" value="0" lay-verify="required|number"
+									placeholder="请输入药品价格" autocomplete="off" class="layui-input">
+							</div>
+						</div>
+						<div class="layui-inline">
+							<label class="layui-form-label">药品数量</label>
+							<div class="layui-input-inline">
+								<input type="text" name="count" id="count" value="0" lay-verify="required|number" 
+								placeholder="请输入药品数量"	autocomplete="off" class="layui-input">
+							</div>
+						</div>
+					</div>
+
+<!-- 					<div class="layui-form-item"> -->
+<!-- 						<label class="layui-form-label">药品价格</label> -->
+<!-- 						<div class="layui-input-block"> -->
+<!-- 							<input type="text" name="price" id="price" -->
+<!-- 								th:value="${obj?.price}" lay-verify="required" -->
+<!-- 								placeholder="请输入药品价格" autocomplete="off" class="layui-input"> -->
+<!-- 						</div> -->
+<!-- 					</div> -->
+<!-- 					<div class="layui-form-item"> -->
+<!-- 						<label class="layui-form-label">药品总数</label> -->
+<!-- 						<div class="layui-input-block"> -->
+<!-- 							<input type="text" name="count" id="count" -->
+<!-- 								th:value="${obj?.count}" lay-verify="required" -->
+<!-- 								placeholder="请输入数量" autocomplete="off" class="layui-input"> -->
+<!-- 						</div> -->
+<!-- 					</div> -->
+					<div class="layui-form-item">
+						<label class="layui-form-label">总金额</label>
+						<div class="layui-input-block">
+							<input type="text" name="total" id="total"
+								th:value="${obj?.total}" lay-verify="required"
+								readonly="readonly"
+								placeholder="请输入总金额" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<label class="layui-form-label">开药原因</label>
+						<div class="layui-input-block">
+							<textarea name="reason" lay-verify="required"
+								placeholder="请输入开药原因" autocomplete="off" class="layui-textarea"></textarea>
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">医生姓名</label>
+						<div class="layui-input-block">
+							<input type="text" name="doctor" lay-verify="required"
+								placeholder="请输入医生姓名" autocomplete="off" class="layui-input">
+						</div>
+					</div>
+					
+					
+					<div class="layui-form-item">
+						<div class="layui-input-block">
+							<button type="submit" class="layui-btn" lay-submit=""
+								lay-filter="demo1">立即提交</button>
+							<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<script th:src="@{/static/layui/layui.js}"></script>
+	<script>
+		layui.use([ 'form', 'laydate' ], function() {
+			var $ = layui.$;
+			var laydate = layui.laydate;
+			var form = layui.form;
+			//             var total = parentEle.querySelector(".total");
+			//     total.innerText =$('#count').val()*$('#price').val();
+			//             $('#total').val() = $('#count').val()*$('#price').val();
+			//支持日期控件
+			laydate.render({
+				elem : '#buytime',
+				trigger : 'click'
+			});
+			
+			 form.verify({
+			        number: function(value, item){
+			            if(!/^\d+$/.test(value)){
+			                return '只能输入数字';
+			            }
+			        }
+			    });
+			
+			document.getElementById("total").onclick = function() {
+				var count = document.getElementById("count").value;
+				var price = document.getElementById("price").value;
+				document.getElementById("total").value = count * price;
+			}
+			
+// 			form.on('select(onClickSelected)', function (data) {
+// 		        var value= data.value;//得到选中的值
+// 		        console.log(data);
+// 				var text = $(this)[0].innerText;//得到选中的文本内容
+// 				document.getElementById("count").value =text;
+// 			});
+
+			form.on('submit(demo1)', function(data) {
+				var field = data.field;
+				$.ajax({
+					url : '/billinfo/billinfoAdd',
+					data : field,
+					async : false,
+					cache : false,
+					success : function(result) {
+						if (result.code == 0) {
+							layer.msg(result.msg, {
+								icon : result.icon,
+								anim : result.anim,
+							});
+						}
+						layer.msg(result.msg, {
+							icon : result.icon,
+							anim : result.anim,
+						});
+					}
+				});
+			});
+		
+
+		
+			//当前供应商的值
+			var currentSname = '[[${obj?.sname}]]';
+			//获取供应商列表
+			$.ajax({
+				url : '/supplier/supplierList',
+				dataType : 'json',
+				type : 'post',
+				cache : false,
+				success : function(data) {
+					$('#sname').prepend("<option value=''>请选择</option>");
+					for (var i = 0; i < data.data.length; i++) {
+						if (data.data[i].name == currentSname) {
+							$('#sname').append(
+									"<option selected value='"+data.data[i].name+"'>"
+											+ data.data[i].name + "</option>");
+						} else {
+							$('#sname').append(
+									"<option value='"+data.data[i].name+"'>"
+											+ data.data[i].name + "</option>");
+						}
+					}
+					form.render(); //下拉列表渲染，把内容加载进去
+				}
+			});
+				/**
+		         * 药品下拉列表触发事件
+		         */
+		        form.on('select(dname)', function (data) {
+		        	//获取当前选中下拉项的索引
+		            var indexGID = data.elem.selectedIndex;
+		            //获取当前选中下拉项的自定义属性值 title
+		            var goodsName = data.elem[indexGID].title;
+		             //获取当前选中下拉项的 value值
+		            var goodsID = data.value;
+		            var appendStr = "<input type=\"text\"  value=\"" + goodsID + "\" lay-skin=\"primary\"\n" +
+		                "                   title=\"" + goodsName + "\" >";
+		            $(".div-actGoods").append(appendStr);
+		            form.render();
+		        });
+				
+			//当前药品的值
+			var currentDname = '[[${obj?.dname}]]';
+			//获取药品列表
+			$.ajax({
+				url : '/druginfo/druginfoList',
+				dataType : 'json',
+				type : 'post',
+				cache : false,
+				success : function(data) {
+					$('#dname').prepend("<option value=''>请选择</option>");
+					for (var i = 0; i < data.data.length; i++) {
+						if (data.data[i].name == currentDname) {
+							$('#dname').append(
+									"<option selected value='"+data.data[i].name+"'>"
+											+ data.data[i].name + "</option>");
+							
+						} else {
+							$('#dname').append(
+									"<option value='"+data.data[i].name+"'>"
+											+ data.data[i].name + "</option>"
+											
+							);
+							
+						}
+					}
+					form.render(); //下拉列表渲染，把内容加载进去
+				}
+			});
+		});
+	</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

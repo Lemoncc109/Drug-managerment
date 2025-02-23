@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>药品信息管理</title>
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/admin/style.css}" media="all">
+    <script type="text/html" id="indexTpl">
+        {{d.LAY_TABLE_INDEX+1}}
+    </script>
+     <style>
+    .layui-table-cell{
+        height:auto;
+        line-height: 30px;
+    }
+</style>
+</head>
+<body class="layui-layout-body">
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-header">药品信息列表</div>
+                    <div class="layui-card-body">
+                        <table class="layui-hide" id="main-table" lay-filter="main-table"></table>
+                        <script type="text/html" id="toolbarDemo">
+                            <span class="layui-inline" style="width: 240px;">
+                                <input class="layui-input" name="param" id="param" placeholder="根据药品名称查询" autocomplete="off">
+                            </span>
+                            <span class="layui-btn layui-btn-sm layui-bg-orange" id="s" lay-event="querySearch">
+                                <i class="layui-icon">&#xe615;</i>查询
+                           </span>
+                           <span class="layui-btn layui-btn-sm layui-bg-orange" lay-event="ph">
+                                <i class="layui-icon">&#xe615;</i>销量排行
+                           </span>
+                        </script>
+                    <div>
+               </div> 
+               </div> 
+                    
+               </div>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/static/layui/layui.js}"></script>
+
+    
+    <script>
+        layui.use(['table','form'],function () {
+            var $ = layui.$;
+            var table = layui.table;
+            table.render({
+            	cellHeight: 300,
+                elem: '#main-table',
+                height: 650,
+                url: '/druginfo/druginfoQueryPage',
+                method: 'POST',
+                page: true,
+                id: 'table-load',
+                toolbar: '#toolbarDemo',
+                cols: [
+                    [
+                    {field:'id',title:'药品ID',align:'center',width:60},
+                    {field:'name',title:'药品名称',align:'center'},
+                    {field:'img',title:'药品图片',align:'center',width:150,
+                    templet:function(d) 
+                    { return '<div onclick="show_img(t)" ><img src="'+d.img+'" ' + 'alt="" ></a></div>'; }},
+                    {field:'supplier',title:'供应商',align:'center'},
+                    {field:'salenum',title:'销售量',align:'center'},
+                    {title:'销售状况',align:'center',templet: isSale},
+                    ]
+                ]
+            });
+            setTimeout(function() {
+                // IE
+                if(document.all) {
+                    document.getElementById("s").click();
+                }
+                // 其它浏览器
+                else {
+                    var e = document.createEvent("MouseEvents");
+                    e.initEvent("click", true, true);
+                    document.getElementById("s").dispatchEvent(e);
+                }
+            }, 100);
+            function show_img(t) {
+            	var t = $(t).find("img");
+            	//页面层
+            	layer.open({
+            		type: 1,
+            		title: '区域图片',
+            		skin: 'layui-layer-rim', //加上边框
+            		area: ['80%', '80%'], //宽高 t.width() t.height()
+            		shadeClose: true, //开启遮罩关闭
+            		end: function (index, layero) {
+            			return false;
+            		},
+            	});
+            }
+            //计算药品库存
+            function isSale(d) {
+                //生产日期
+                debugger
+                var psalenum = d.salenum;
+                //获取库存
+                if(psalenum>=500){
+                    return "<span style='color:red'>热销药品</span>";
+                }else if(psalenum<=50){
+                    return "<span style='color:orange'>销量惨淡</span>";
+                }else{
+                    return "<span style='color:green;'>日常销售</span>";
+                }
+            }
+            //监听头工具栏事件
+            table.on('toolbar(main-table)',function (obj) {
+            	var checkStatus = table.checkStatus(obj.config.id);
+                switch (obj.event) {
+                    case 'add':
+                        layer.open({
+                            type: 2,
+                            title: '新增药品信息',
+                            content: '/druginfo/druginfoPage',
+                            shade:[0.8,'#393d49'],
+                            area:['600px','530px'],
+                            btn:['确定','取消'],
+                            yes:function (index,layero) {
+                                var iframeWindow = window['layui-layer-iframe'+index];
+                                var submit = layero.find('iframe').contents().find("#LAY-front-submit");
+                                //监听提交
+                                iframeWindow.layui.form.on('submit(LAY-front-submit)',function (data) {
+                                    var field = data.field;
+                                    $.ajax({
+                                        url: '/hotdruginfo/hotdruginfoAdd',
+                                        data: field,
+                                        async: false,
+                                        cache: false,
+                                        success: function (str) {
+                                            if(str.code === 0){
+                                                table.reload('table-load');
+                                            }
+                                            layer.msg(str.msg,{icon:str.icon,anim:str.anim});
+                                        }
+                                    });
+                                    layer.close(index);     //关闭弹层
+                                });
+                                submit.trigger('click');
+                            },
+                            success:function (layero,index) {
+                                
+                            }
+                        });
+                        break;
+                    case 'ph':
+                    	
+                    	break;
+                         //Api封装
+//                      case'getCheckData':
+//                     	 var data = checkStatus.data;
+//                     	 let ids='';
+//                     	 for(let i=0;i<checkStatus.data.length;i++){
+//                     	   if (i===this.ids.length-1){
+//                     	     ids+=this.ids[i];
+//                     	   }else {
+//                     	     ids+=this.ids[i]+',';
+//                     	   }
+//                     	 }
+//                          return request({
+//                                  url: '/hotdruginfo/batchDelete'+ids,
+//                                 method: 'delete',
+//                                 params: {ids:ids}
+//                              })
+//                          break;
+                    case 'querySearch':
+                        var param = $('#param').val();
+                        table.reload('table-load',{
+                            where: {
+                                param: param
+                            }
+                        });
+                        $('#param').val(param);
+                        break;
+                }
+            });
+            
+
+            //监听编辑、删除
+            table.on('tool(main-table)',function (obj) {
+                var data = obj.data;
+                switch (obj.event) {
+                    case 'edit':
+                        layer.open({
+                            type: 2,
+                            title: '编辑药品信息',
+                            content: '/druginfo/druginfoQueryById?id=' +data.id,
+                            shade:[0.8,'#393d49'],
+                            area:['600px','500px'],
+                            btn:['确定','取消'],
+                            yes:function (index,layero) {
+                                var iframeWindow = window['layui-layer-iframe'+index];
+                                var submit = layero.find('iframe').contents().find("#LAY-front-submit");
+                                //监听提交
+                                iframeWindow.layui.form.on('submit(LAY-front-submit)',function (data) {
+                                    var field = data.field;
+                                    $.ajax({
+                                        url: '/hotdruginfo/hotdruginfoEdit',
+                                        data: field,
+                                        async: false,
+                                        cache: false,
+                                        success: function (str) {
+                                            if(str.code === 0){
+                                                table.reload('table-load');
+                                            }
+                                            layer.msg(str.msg,{icon:str.icon,anim:str.anim});
+                                        }
+                                    });
+                                    layer.close(index);     //关闭弹层
+                                });
+                                submit.trigger('click');
+                            },
+                            success:function (layero,index) {
+
+                            }
+                        });
+                        break;
+                    case 'del':
+                        layer.confirm('确认要删除吗？',function (index) {
+                            $.ajax({
+                                url: '/druginfo/druginfoDelById?id=' +data.id,
+                                data: null,
+                                async: false,
+                                cache: false,
+                                success: function (str) {
+                                    table.reload('table-load');
+                                    layer.msg(str.msg,{icon:str.icon,anim:str.anim});
+                                }
+                            });
+                        })
+                        break;
+                }
+            });
+        });
+        
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
